@@ -1,5 +1,6 @@
 import retro
 import numpy as np
+import action
 
 # main file
 # obs observation 210*160*3
@@ -18,9 +19,8 @@ def Running_algorithm(env):
     while case < Cases:
         obs = env.reset()
         while True:
-            action_sample = env.action_space.sample()  # a action for definition
-            action = action_sample
-            obs, rew, done, info = env.step(action)
+            act = action.get_greedily(env, 0.1)
+            obs, rew, done, info = env.step(act)
 
             env.render()
             if done:
