@@ -1,6 +1,8 @@
 import retro
 import numpy as np
 import action
+import Q
+import CNN
 
 # main file
 # obs observation 210*160*3
@@ -16,15 +18,17 @@ def Running_algorithm(env):
     Cases = 10000  # for each case, the game will run once times until its fail
     case = 0  # counting running cases
     time_interval = 0  # if it's large enough, network will be updated
+    theta = np.array(1600, 512)
     while case < Cases:
         obs = env.reset()
+        act = action.get_greedily(env, state, theta, 0.1)
         while True:
-            obs, rew, done, info = env.step()
 
+            state = CNN.run(obs)
             act = action.get_greedily(env, state, theta, 0.1)
 
-
-            env.render()
+            obs, rew, done, info = env.step(act)
+            # env.render()  # show the running animation
             if done:
                 break
         case += 1
