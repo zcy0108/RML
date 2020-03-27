@@ -3,8 +3,6 @@ import retro
 
 def main():
     env = retro.make("Breakout-Atari2600")
-    observation_size = env.observation_space.shape[0]
-
     Cases = 10000
     case = 0
     time_interval = 0
