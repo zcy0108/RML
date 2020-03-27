@@ -1,28 +1,41 @@
-import gym
 import retro
+import numpy as np
+
+# main file
+# obs observation 210*160*3
+# rew float reward
+# done boolean
+# info score 1 & 2
 
 
-def main():
-    env = retro.make("Breakout-Atari2600")
-    Cases = 10000
-    case = 0
-    time_interval = 0
+def Running_algorithm(env):
+    # Initialize replay memory D to capacity N
+    # Initialize action-value function Q with random weights
+
+    Cases = 10000  # for each case, the game will run once times until its fail
+    case = 0  # counting running cases
+    time_interval = 0  # if it's large enough, network will be updated
     while case < Cases:
         obs = env.reset()
         while True:
-            k = env.action_space.sample()
-            # print(k)
-            obs, rew, done, info = env.step(k)
-            if rew == 1:
-                print(rew)
-            # obs observation 210*160*3
-            # rew float reward
-            # done boolean
-            # info score 1 & 2
+            action_sample = env.action_space.sample()  # a action for definition
+            action = action_sample
+            obs, rew, done, info = env.step(action)
+
             env.render()
             if done:
                 break
         case += 1
+    #  end running cases
+    return
+
+
+def main():  # main function
+    env = retro.make("Breakout-Atari2600")
+
+    Running_algorithm(env)
+
+    # close the environment
     env.close()
 
 
