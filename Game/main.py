@@ -3,19 +3,27 @@ import retro
 
 
 def main():
-    env = gym.make('1942-Nes')
-    for i_episode in range(20):
-        observation = env.reset()
-        for t in range(100):
+    env = retro.make("Breakout-Atari2600")
+    Cases = 10000
+    case = 0
+    time_interval = 0
+    while case < Cases:
+        obs = env.reset()
+        while True:
+            k = env.action_space.sample()
+            # print(k)
+            obs, rew, done, info = env.step(k)
+            if rew == 1:
+                print(rew)
+            # obs observation 210*160*3
+            # rew float reward
+            # done boolean
+            # info score 1 & 2
             env.render()
-            print(observation)
-            action = env.action_space.sample()
-            observation, reward, done, info = env.step(action)
             if done:
-                print("Episode finished after {} timesteps".format(t + 1))
                 break
+        case += 1
     env.close()
-    return
 
 
 if __name__ == "__main__":
