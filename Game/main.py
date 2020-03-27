@@ -19,8 +19,10 @@ def Running_algorithm(env):
     while case < Cases:
         obs = env.reset()
         while True:
-            act = action.get_greedily(env, 0.1)
-            obs, rew, done, info = env.step(act)
+            obs, rew, done, info = env.step()
+
+            act = action.get_greedily(env, state, theta, 0.1)
+
 
             env.render()
             if done:

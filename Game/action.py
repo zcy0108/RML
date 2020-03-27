@@ -1,6 +1,6 @@
-import retro
 import numpy as np
 import math
+import Q
 
 
 def toInt(a):
@@ -17,13 +17,13 @@ def toAry(env, a):
     return ans
 
 
-def Get_max():
+def Get_max(env, state, theta):
+    ans = Q.value(state, theta)
+    return toAry(env, np.argmax(ans))
 
-    return
 
-
-def get_greedily(env, epsilon):
+def get_greedily(env, state, theta, epsilon):
     if np.random.rand() < epsilon:
         return env.action_space.sample()
     else:
-        return Get_max()
+        return Get_max(env, state, theta)
