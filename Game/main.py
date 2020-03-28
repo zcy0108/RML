@@ -4,6 +4,8 @@ import action
 import Q
 import CNN
 
+f = open("test/out.txt", 'w+')
+
 # main file
 # obs observation 210*160*3
 # rew float reward
@@ -18,18 +20,17 @@ def Running_algorithm(env):
     Cases = 100000  # for each case, the game will run once times until its fail
     case = 0  # counting running cases
     time_interval = 0  # if it's large enough, network will be updated
-    theta = np.array([2520, 512])
+    theta = np.random.rand(2520, 512)
+    print(theta, file=f)
     while case < Cases:
         obs = env.reset()
         # act = action.get_greedily(env, state, theta, 0.1)
-        env.render()
+        # env.render()
         while True:
-
             state = CNN.run(obs)
             act = action.get_greedily(env, state, theta, 0.1)
-
             obs, rew, done, info = env.step(act)
-            # env.render()  # show the running animation
+            env.render()  # show the running animation
             if done:
                 break
         case += 1

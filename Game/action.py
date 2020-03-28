@@ -14,6 +14,8 @@ def toAry(env, a):
     ans = env.action_space.sample()
     for i in range(8):
         ans[i] = a // math.pow(2, 8 - i)
+        if ans[i] == 1:
+            a -= math.pow(2, 8 - i)
     return ans
 
 
