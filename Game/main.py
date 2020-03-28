@@ -18,7 +18,7 @@ def Running_algorithm(env):
     Cases = 100000  # for each case, the game will run once times until its fail
     case = 0  # counting running cases
     time_interval = 0  # if it's large enough, network will be updated
-    theta = np.array([1600, 512])
+    theta = np.array([2520, 512])
     while case < Cases:
         obs = env.reset()
         # act = action.get_greedily(env, state, theta, 0.1)
