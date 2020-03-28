@@ -15,13 +15,14 @@ def Running_algorithm(env):
     # Initialize replay memory D to capacity N
     # Initialize action-value function Q with random weights
 
-    Cases = 10000  # for each case, the game will run once times until its fail
+    Cases = 100000  # for each case, the game will run once times until its fail
     case = 0  # counting running cases
     time_interval = 0  # if it's large enough, network will be updated
-    theta = np.array(1600, 512)
+    theta = np.array([1600, 512])
     while case < Cases:
         obs = env.reset()
-        act = action.get_greedily(env, state, theta, 0.1)
+        # act = action.get_greedily(env, state, theta, 0.1)
+        env.render()
         while True:
 
             state = CNN.run(obs)
