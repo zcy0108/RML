@@ -1,8 +1,7 @@
 import retro
 import numpy as np
-import action
-import Q
-import CNN
+import tensorflow as tf
+import Network
 
 f = open("test/out.txt", 'w+')
 
@@ -13,38 +12,18 @@ f = open("test/out.txt", 'w+')
 # info score 1 & 2
 
 
-def Running_algorithm(env):
-    # Initialize replay memory D to capacity N
-    # Initialize action-value function Q with random weights
-
-    Cases = 100000  # for each case, the game will run once times until its fail
-    case = 0  # counting running cases
-    time_interval = 0  # if it's large enough, network will be updated
-    theta = np.random.rand(2520, 512)
-    print(theta, file=f)
-    while case < Cases:
-        obs = env.reset()
-        # act = action.get_greedily(env, state, theta, 0.1)
-        # env.render()
-        while True:
-            state = CNN.run(obs)
-            act = action.get_greedily(env, state, theta, 0.1)
-            obs, rew, done, info = env.step(act)
-            env.render()  # show the running animation
-            if done:
-                break
-        case += 1
-    #  end running cases
-    return
-
-
 def main():  # main function
     env = retro.make("Breakout-Atari2600")
-
-    Running_algorithm(env)
-
-    # close the environment
-    env.close()
+    agent = Network.QNetwork(env)
+    env.reset()
+    while True:
+        action = agent.get_action()
+        obs, rew, done, info = env.step(action)
+        if done:
+            env.reset()
+        if agent.end:
+            break
+    env.close()  # close the environment
 
 
 if __name__ == "__main__":

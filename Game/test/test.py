@@ -1,48 +1,39 @@
-import retro
-import CNN
+from numba import cuda
+import numpy as np
+import math
+from time import time
 
 
-def toLarge(a):
-    return a[0] * 1000000 + a[1] * 1000 + a[2]
-
-
-def judge(a):
-    if a[0] == a[1] and a[1] == a[2] and a[2] == 0:
-        return True
-    return False
+@cuda.jit
+def gpu_add(a, b, result, n):
+    idx = cuda.threadIdx.x + cuda.blockDim.x * cuda.blockIdx.x
+    if idx < n:
+        result[idx] = a[idx] + b[idx]
 
 
 def main():
-    f = open("test/out.txt", 'w+')
-    env = retro.make("Breakout-Atari2600")
-    env.reset()
+    n = 20000000
+    x = np.arange(n).astype(np.int32)
+    y = 2 * x
 
-    for i in range(100):
-        obs, rew, done, info = env.step(env.action_space.sample())
-        if done:
-            env.reset()
-        env.render()
-    L1 = len(obs)
-    L2 = len(obs[0])
-    # obs = obs[32:][8:(L - 8)][:]
+    # 拷贝数据到设备端
+    x_device = cuda.to_device(x)
+    y_device = cuda.to_device(y)
+    # 在显卡设备上初始化一块用于存放GPU计算结果的空间
+    gpu_result = cuda.device_array(n)
+    cpu_result = np.empty(n)
 
-    # for i in range(32, L1 - 17):
-    #     for j in range(8, L2 - 8):
-    #         # print("{:0>9d}".format(toLarge(obs[i][j])), end=' ', file=f)
-    #         k = 1 if not judge(obs[i][j]) else 0
-    #         print(k, end=' ', file=f)
-    #     print(' ', file=f)
-
-    a = CNN.Initialize(obs)
-    for i in a:
-        for j in i:
-            print(j, end='', file=f)
-        print('', file=f)
-
-    env.close()
-
-    print(len(a), len(a[0]))
-    return
+    threads_per_block = 1024
+    blocks_per_grid = math.ceil(n / threads_per_block)
+    start = time()
+    gpu_add[blocks_per_grid, threads_per_block](x_device, y_device, gpu_result, n)
+    cuda.synchronize()
+    print("gpu vector add time " + str(time() - start))
+    start = time()
+    cpu_result = np.add(x, y)
+    print("cpu vector add time " + str(time() - start))
+    if np.array_equal(cpu_result, gpu_result.copy_to_host()):
+        print("result correct!")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,5 @@
 import numpy as np
 import math
-import Q
 
 
 def toInt(a):
@@ -20,8 +19,7 @@ def toAry(env, a):
 
 
 def Get_max(env, state, theta):
-    ans = Q.value(state, theta)
-    return toAry(env, np.argmax(ans))
+    return
 
 
 def get_greedily(env, state, theta, epsilon):
