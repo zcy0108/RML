@@ -57,15 +57,13 @@ class QNetwork:
         else:
             return self.get_max_action()
 
-    @staticmethod
-    def get_max_action():
+    def get_max_action(self):
         return np.random.randint(0, 2, 8)
 
     def run(self):
 
         return
 
-    @staticmethod
     def transfer_observation(self, obs):
         L1 = len(obs)
         L2 = len(obs[0])
@@ -74,28 +72,31 @@ class QNetwork:
             if not i % 6:
                 for j in range(8, L2 - 8):
                     if not j % 2:
-                        k = self.to10(obs[i][j])
+                        k = self.to1(obs[i][j])
                         lis.append(k)
         for i in range(93, L1 - 17):
             if not i % 4:
                 for j in range(8, L2 - 8):
                     if not j % 2:
-                        k = self.to10(obs[i][j])
+                        k = self.to1(obs[i][j])
                         lis.append(k)
-        return np.array(lis)
+        return np.array(lis).reshape(1, self.state_size)
 
-    @staticmethod
-    def to10(a):
+    def train(self):
+        np.random.sample(range(1, self.database_size), self.training_size)
+        return
+
+    def to1(self, a):
         if a[0] == a[1] and a[1] == a[2] and a[2] == 0:
-            return 0
+            return -1
         else:
             return 1
 
     def store_transition(self, obs, reward, action, next_obs):
         self.database_ite = self.database_ite % self.database_size
-        self.database_state[self.database_ite] = self.transfer_observation(self, obs)
+        self.database_state[self.database_ite] = self.transfer_observation(obs)
         self.database_reward[self.database_ite] = reward
         self.database_action[self.database_ite] = action
-        self.database_next_state[self.database_ite] = self.transfer_observation(self, next_obs)
+        self.database_next_state[self.database_ite] = self.transfer_observation(next_obs)
         self.database_ite += 1
         return
