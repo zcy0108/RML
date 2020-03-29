@@ -3,22 +3,16 @@ import numpy as np
 import tensorflow as tf
 import Network
 
-f = open("test/out.txt", 'w+')
-
-# main file
-# obs observation 210*160*3
-# rew float reward
-# done boolean
-# info score 1 & 2
-
 
 def main():  # main function
     env = retro.make("Breakout-Atari2600")
+    # noinspection PyArgumentList
     agent = Network.QNetwork(env)
-    env.reset()
+    obs = env.reset()
     while True:
-        action = agent.get_action()
-        obs, rew, done, info = env.step(action)
+        action = agent.get_action_greedily()
+        next_obs, rew, done, info = env.step(action)
+        agent.store_transition(obs, rew, action, next_obs)
         if done:
             env.reset()
         if agent.end:

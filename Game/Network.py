@@ -47,16 +47,20 @@ class QNetwork:
 
         return self
 
-    def Get_max_action(self):
-        a = self.env.action_space.sample()
-        return a
-
     def get_action_greedily(self):
         if np.random.rand() < self.epsilon:
             return self.env.action_space.sample()
         else:
-            return self.Get_max_action()
+            return self.get_max_action()
+
+    def get_max_action(self):
+        a = self.env.action_space.sample()
+        return a
 
     def run(self):
+
+        return
+
+    def store_transition(self, obs, reward, action, next_obs):
 
         return
