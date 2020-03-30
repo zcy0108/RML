@@ -19,8 +19,8 @@ def main():  # main function
         next_obs, rew, done, info = env.step(action)
         agent.store_transition(obs, rew, action, next_obs)
         obs = next_obs
-        env.render()
-        if step % agent.interval_size and step > agent.database_size:
+        # env.render()
+        if (not step % agent.interval_size) and step > agent.database_size:
             agent.train()
         if done:
             env.reset()

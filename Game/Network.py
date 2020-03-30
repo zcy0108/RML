@@ -1,5 +1,5 @@
+import random
 import numpy as np
-import retro
 import tensorflow as tf
 
 filename = 'theta.txt'
@@ -83,7 +83,9 @@ class QNetwork:
         return np.array(lis).reshape(1, self.state_size)
 
     def train(self):
-        np.random.sample(range(1, self.database_size), self.training_size)
+        samples = random.sample(range(0, self.database_size), self.training_size)
+        print(samples)
+        # ite =
         return
 
     def to1(self, a):
