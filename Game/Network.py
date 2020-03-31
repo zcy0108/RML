@@ -71,8 +71,7 @@ class QNetwork:
         # columns are from 8 to 152
         state = np.zeros((164, 144, 3))
         for i in range(164):
-            for j in range(144):
-                state[i][j] = obs[i+32][j+8]
+            state[i] = obs[i+32][8:152][:]
         return state
 
     def train(self):
