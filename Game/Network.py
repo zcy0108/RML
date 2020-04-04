@@ -1,8 +1,7 @@
 import random
 import numpy as np
 import tensorflow as tf
-import test
-from gym import spaces
+from tensorflow.keras import layers
 
 filename = 'theta.txt'
 
@@ -41,38 +40,42 @@ class QNetwork:
 
     ite = [i for i in range(164)]
 
-    interval_size = 500  # train once time in each interval
-    training_size = 100  # training example size
-    database_size = 1000
+    interval_size = 100  # train once time in each interval
+    training_size = 32  # training example size
+    database_size = 10000
     database_state = np.zeros((database_size, 5904))
     database_reward = np.zeros(database_size)
     database_action = np.zeros(database_size)  # left is 0, right is 1
     database_next_state = np.zeros((database_size, 5904))
     database_ite = 0
 
+    model = tf.keras.Sequential()
+
     def __int__(self):
-        self.fix_theta = read(1600, 512)  # weight matrix theta for evaluation
-        self.training_theta = self.fix_theta  # weight matrix theta for training
+        self.model.add(layers.Dense(769, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)))
+        self.model.add(layers.Dense(96, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)))
+        self.model.add(layers.Dense(2))
+        self.model.compile(optimizer=tf.keras.optimizers.Adam(0.01),
+                      loss='mse',  # mean squared error
+                      metrics=['mae'])  # mean absolute error
         return self
 
-    def get_action_greedily(self):
+    def get_action_greedily(self, obs):
         if np.random.rand() < self.epsilon:
             if np.random.rand() < 0.5:
                 return self.left
             else:
                 return self.right
         else:
-            return self.get_max_action()
+            return self.get_max_action(obs)
 
-    def get_max_action(self):
-        if np.random.rand() <= 0.5:
+    def get_max_action(self, obs):
+        state = self.simplify(np.where(np.reshape(obs[32:196, 8:152, 0:1], (164, 144)) > 0, 1, -1))
+        judge = self.model.predict(state, batch_size=32)
+        if judge[0] > judge[1]:
             return self.left
         else:
             return self.right
-
-    def get_q(self, state, action):
-
-        return
 
     def simplify(self, state):
         state = np.delete(state, self.ite[0:164:2], axis=0)
@@ -101,7 +104,11 @@ class QNetwork:
             data_ac[i] = self.database_action[it]
             data_nst[i] = self.database_next_state[it]
             i += 1
-        print("train once")
+        label_q = self.model.predict(data_st, batch_size=32)
+        next_q = self.model.predict(data_nst, batch_size=32)
+        for i in range(self.training_size):
+            label_q[i][data_ac[i]] = data_rw[i] + self.gamma * max(next_q[0], next_q[1])
+        self.model.fit(data_st, label_q, epochs=10, batch_size=32)
         return
 
 

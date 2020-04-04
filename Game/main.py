@@ -11,7 +11,7 @@ def main():  # main function
     pre_lives = 5
     # Training
     for step in range(10000000):  # training episodes 10 million
-        action = agent.get_action_greedily()
+        action = agent.get_action_greedily(obs)
         next_obs, rew, done, info = env.step(action)
         cur_lives = info.get('lives')
         if pre_lives != cur_lives:
