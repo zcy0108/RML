@@ -19,7 +19,7 @@ def main():  # main function
             rew = -1
         agent.store_transition(obs, rew, action, next_obs)
         obs = next_obs
-        env.render()
+        # env.render()
         if (not step % agent.interval_size) and step > agent.database_size:
             agent.train()
         if done:

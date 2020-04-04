@@ -31,21 +31,23 @@ def save(theta):
 
 
 class QNetwork:
-    end = False  # stop running or not
+    nonsense = False
     alpha = 0.01  # learning rate
     epsilon = 0.1  # greedy rate
     gamma = 0.9  # discount rate
 
-    action_size = 512
-    state_size = 2520
-    interval_size = 300  # train once time in each interval
-    training_size = 50  # training example size
+    left = [1, 0, 0, 0, 0, 0, 1, 0]
+    right = [1, 0, 0, 0, 0, 0, 0, 1]
 
+    ite = [i for i in range(164)]
+
+    interval_size = 500  # train once time in each interval
+    training_size = 100  # training example size
     database_size = 1000
-    database_state = np.zeros((database_size, 164, 144, 3))
+    database_state = np.zeros((database_size, 5904))
     database_reward = np.zeros(database_size)
-    database_action = np.zeros((database_size, 8))
-    database_next_state = np.zeros((database_size, 164, 144, 3))
+    database_action = np.zeros(database_size)  # left is 0, right is 1
+    database_next_state = np.zeros((database_size, 5904))
     database_ite = 0
 
     def __int__(self):
@@ -55,37 +57,51 @@ class QNetwork:
 
     def get_action_greedily(self):
         if np.random.rand() < self.epsilon:
-            return spaces.multi_binary.MultiBinary(8).sample()
+            if np.random.rand() < 0.5:
+                return self.left
+            else:
+                return self.right
         else:
             return self.get_max_action()
 
     def get_max_action(self):
+        if np.random.rand() <= 0.5:
+            return self.left
+        else:
+            return self.right
 
-        return spaces.multi_binary.MultiBinary(8).sample()
-
-    def run(self):
+    def get_q(self, state, action):
 
         return
 
-    def transfer_observation(self, obs):
-        # rows are from 32 to 196
-        # columns are from 8 to 152
-        state = np.zeros((164, 144, 3))
-        for i in range(164):
-            state[i] = obs[i+32][8:152][:]
-        return state
-
-    def train(self):
-        data = random.sample(range(0, self.database_size), self.training_size)
-
-        # ite =
-        return
+    def simplify(self, state):
+        state = np.delete(state, self.ite[0:164:2], axis=0)
+        state = np.delete(state, self.ite[0:144:2], axis=1)
+        return state.reshape(1, 5904)
 
     def store_transition(self, obs, reward, action, next_obs):
         self.database_ite = self.database_ite % self.database_size
-        self.database_state[self.database_ite] = self.transfer_observation(obs)
+        self.database_state[self.database_ite] = self.simplify(np.where(np.reshape(obs[32:196, 8:152, 0:1], (164, 144)) > 0, 1, -1))
         self.database_reward[self.database_ite] = reward
-        self.database_action[self.database_ite] = action
-        self.database_next_state[self.database_ite] = self.transfer_observation(next_obs)
+        self.database_action[self.database_ite] = 0 if action[6] == 1 else 1
+        self.database_next_state[self.database_ite] = self.simplify(np.where(np.reshape(next_obs[32:196, 8:152, 0:1], (164, 144)) > 0, 1, -1))
         self.database_ite += 1
         return
+
+    def train(self):
+        data_ite = random.sample(range(0, self.database_size), self.training_size)
+        data_st = np.zeros((self.training_size, 5904))
+        data_rw = np.zeros(self.training_size)
+        data_ac = np.zeros(self.training_size)
+        data_nst = np.zeros((self.training_size, 5904))
+        i = 0
+        for it in data_ite:
+            data_st[i] = self.database_state[it]
+            data_rw[i] = self.database_reward[it]
+            data_ac[i] = self.database_action[it]
+            data_nst[i] = self.database_next_state[it]
+            i += 1
+        print("train once")
+        return
+
+
