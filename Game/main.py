@@ -1,9 +1,5 @@
-import os
 import retro
 import Network
-import time
-
-# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 
 def main():  # main function
@@ -26,6 +22,8 @@ def main():  # main function
         # env.render()
         if (not step % agent.interval_size) and step > agent.database_size:
             agent.train()
+        if (not step % (100 * agent.interval_size)) and step > agent.database_size:
+            agent.save()
         if done:
             pre_lives = 5
             print("No.", case, "The score is", info.get('score'))
