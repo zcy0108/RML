@@ -3,36 +3,11 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
 
-filename = 'theta.txt'
-
-
-def read(r, c):
-    f = open(filename)
-    lines = f.readlines()
-    f.close()
-    theta = np.random.rand(r, c)
-    row = 0
-    for line in lines:
-        line = line.strip().split('\n')
-        theta[row, :] = line[:]
-        row += 1
-    return theta
-
-
-def save(theta):
-    f = open(filename, 'w+')
-    for i in theta:
-        for j in i:
-            print(j, end=' ', file=f)
-        print()
-    f.close()
-    return
-
 
 class QNetwork:
     nonsense = False
     alpha = 0.01  # learning rate
-    epsilon = 0.1  # greedy rate
+    epsilon = 1  # greedy rate
     gamma = 0.9  # discount rate
 
     left = [1, 0, 0, 0, 0, 0, 1, 0]
@@ -50,10 +25,13 @@ class QNetwork:
     database_ite = 0
 
     model = tf.keras.Sequential()
+    model.compile(optimizer=tf.keras.optimizers.Adam(0.01),
+                       loss='mse',  # mean squared error
+                       metrics=['mae'])  # mean absolute error
 
     def __int__(self):
-        self.model.add(layers.Dense(769, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)))
-        self.model.add(layers.Dense(96, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)))
+        self.model.add(layers.Dense(769, activation='tahn', kernel_regularizer=tf.keras.regularizers.l2(0.01)))
+        self.model.add(layers.Dense(96, activation='tahn', kernel_regularizer=tf.keras.regularizers.l2(0.01)))
         self.model.add(layers.Dense(2))
         return self
 
@@ -74,10 +52,6 @@ class QNetwork:
         else:
             return self.right
 
-    def set_eps(self, eps):
-        self.epsilon = eps
-        return
-
     def simplify(self, state):
         state = np.delete(state, self.ite[0:164:2], axis=0)
         state = np.delete(state, self.ite[0:144:2], axis=1)
@@ -93,6 +67,7 @@ class QNetwork:
         return
 
     def train(self):
+        self.epsilon = max(0.1, self.epsilon - 0.00001)
         data_ite = random.sample(range(0, self.database_size), self.training_size)
         data_st = np.zeros((self.training_size, 5904), dtype="float32")
         data_rw = np.zeros(self.training_size, dtype="float32")
@@ -109,10 +84,7 @@ class QNetwork:
         next_q = self.model.predict(data_nst, batch_size=32)
         for i in range(self.training_size):
             label_q[i][data_ac[i]] = data_rw[i] + self.gamma * max(next_q[i][0], next_q[i][1])
-        self.model.compile(optimizer=tf.keras.optimizers.Adam(0.01),
-                           loss='mse',  # mean squared error
-                           metrics=['mae'])  # mean absolute error
-        self.model.fit(data_st, label_q, epochs=10, batch_size=32)
+        self.model.fit(data_st, label_q, epochs=10, batch_size=32, verbose=0)
         return
 
 

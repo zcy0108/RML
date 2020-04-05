@@ -1,7 +1,9 @@
+import os
 import retro
-import numpy as np
-import tensorflow as tf
 import Network
+import time
+
+# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 
 def main():  # main function
@@ -11,8 +13,8 @@ def main():  # main function
     pre_lives = 5
     # Training
     Steps = 10000000
+    case = 1
     for step in range(Steps):  # training episodes 10 million
-        agent.set_eps(1.0 - step/Steps)
         action = agent.get_action_greedily(obs)
         next_obs, rew, done, info = env.step(action)
         cur_lives = info.get('lives')
@@ -21,12 +23,13 @@ def main():  # main function
             rew = -1
         agent.store_transition(obs, rew, action, next_obs)
         obs = next_obs
-        env.render()
+        # env.render()
         if (not step % agent.interval_size) and step > agent.database_size:
             agent.train()
         if done:
             pre_lives = 5
-            print("The score is", info.get('score'))
+            print("No.", case, "The score is", info.get('score'))
+            case += 1
             env.reset()
     # Testing
     obs = env.reset()
