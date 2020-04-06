@@ -91,7 +91,7 @@ class QNetwork:
         next_q = self.model.predict(data_nst, batch_size=32)
         for i in range(self.training_size):
             label_q[i][data_ac[i]] = data_rw[i] + self.gamma * max(next_q[i][0], next_q[i][1])
-        self.model.fit(data_st, label_q, epochs=1, batch_size=32, verbose=0)
+        self.model.fit(data_st, label_q, epochs=5, batch_size=32, verbose=0)
         return
 
 
